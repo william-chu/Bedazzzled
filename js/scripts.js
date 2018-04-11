@@ -305,8 +305,7 @@ function drawNewGems(board, i = -1, j = -1) {
     setTimeout(function() {
       drawNewGems(board, 0, 0);
     }, 700);
-  }
-  if (i < board.board.length) {
+  } else if (i < board.board.length) {
     if (j < board.board.length){
       var cellID = '#' + i + '-' + j;
       if (typeof(board.board[i][j]) === "undefined"){
@@ -331,11 +330,8 @@ function drawNewGems(board, i = -1, j = -1) {
 }
 
 $(document).ready(function() {
-  console.log("got here");
   var newBoard = new Board();
-  //newBoard.startBoard();
-  console.log(newBoard.board.length);
-  console.log(newBoard.board[0].length);
+  newBoard.startBoard();
   drawClear(newBoard);
   $('.cell').click(function() {
     var userClick = $(this).attr('id');
