@@ -59,7 +59,7 @@ var gem48 = new Gem ("red");
 var gem49 = new Gem ("blue");
 
 function Board() {
-  this.board = [[], [], [], [], [], [], []]
+  this.board = [[gem1, gem2, gem3, gem4], [gem5, gem6, gem7, gem8], [gem9, gem10, gem11, gem12], [gem13, gem14, gem15, gem16]];
 }
 
 Board.prototype.genGem = function(max) {
@@ -234,7 +234,15 @@ Board.prototype.clearGems = function () {
   matches.forEach(function(item) {
     var coordinates=item.split(',');
     newScore += thisBoard[parseInt(coordinates[0])][parseInt(coordinates[1])].pointVal;
-    console.log(newScore);
+    thisBoard[parseInt(coordinates[0])][parseInt(coordinates[1])] = "burst";
+  });
+  this.board = thisBoard;
+};
+
+Board.prototype.removeBursts= function () {
+  var thisBoard = this.board;
+  matches.forEach(function(item) {
+    var coordinates=item.split(',');
     thisBoard[parseInt(coordinates[0])].splice(parseInt(coordinates[1]),1);
   });
   this.board = thisBoard;
@@ -243,12 +251,15 @@ Board.prototype.clearGems = function () {
 Board.prototype.checkBoard = function () {
   if(this.match()) {
     this.clearGems();
+    drawClear(this);
+    this.removeBursts();
     this.genGem(3);
-    drawBoard(this);
+    drawNewGems(this);
     scoreTicker();
-    setTimeout(this.checkBoard.bind(this), 800);
+    setTimeout(this.checkBoard.bind(this), 200);
   }
 };
+
 Board.prototype.startBoard = function () {
   this.genGem(3);
   while (this.match()) {
@@ -258,6 +269,7 @@ Board.prototype.startBoard = function () {
   newScore = 0;
   currentScore = 0;
 };
+
 // User Interface Logic
 function scoreTicker() {
   if(currentScore < newScore) {
@@ -266,13 +278,18 @@ function scoreTicker() {
     setTimeout(scoreTicker, 50);
   }
 }
-function drawBoard(board) {
+
+function drawClear(board) {
   for (var i = 0; i < board.board.length; i++) {
     for (var j = 0; j < board.board.length; j++) {
       var cellID = '#' + i + '-' + j;
-      if (board.board[i][j].type === 'blue') {
+      if (typeof(board.board[i][j]) === "undefined"){
+        return;
+      } else if(board.board[i][j] === "burst"){
+        $(cellID).empty().append('<img src="img/burst.gif">');
+      } else if (board.board[i][j].type === 'blue') {
         $(cellID).empty().append('<img src="img/blue.svg">');
-       } else if (board.board[i][j].type === 'red') {
+      } else if (board.board[i][j].type === 'red') {
         $(cellID).empty().append('<img src="img/red.svg">');
       } else if (board.board[i][j].type === 'green') {
         $(cellID).empty().append('<img src="img/green.svg">');
@@ -283,11 +300,43 @@ function drawBoard(board) {
   }
 }
 
-$(document).ready(function() {
+function drawNewGems(board, i = -1, j = -1) {
+  if (i === -1 && j === -1) {
+    setTimeout(function() {
+      drawNewGems(board, 0, 0);
+    }, 700);
+  }
+  if (i < board.board.length) {
+    if (j < board.board.length){
+      var cellID = '#' + i + '-' + j;
+      if (typeof(board.board[i][j]) === "undefined"){
+        return;
+      } else if(board.board[i][j] === "burst"){
+        $(cellID).empty().append('<img src="img/burst.gif">');
+      } else if (board.board[i][j].type === 'blue') {
+        $(cellID).empty().append('<img src="img/blue.svg">');
+      } else if (board.board[i][j].type === 'red') {
+        $(cellID).empty().append('<img src="img/red.svg">');
+      } else if (board.board[i][j].type === 'green') {
+        $(cellID).empty().append('<img src="img/green.svg">');
+      } else if (board.board[i][j].type === 'yellow') {
+        $(cellID).empty().append('<img src="img/yellow.svg">');
+      }
+      setTimeout(function() {
+        drawNewGems(board, i, j+1);
+      }, 200*(1/(j+1)));
+    }
+    drawNewGems(board, i+1, j);
+  }
+}
 
+$(document).ready(function() {
+  console.log("got here");
   var newBoard = new Board();
-  newBoard.startBoard();
-  drawBoard(newBoard);
+  //newBoard.startBoard();
+  console.log(newBoard.board.length);
+  console.log(newBoard.board[0].length);
+  drawClear(newBoard);
   $('.cell').click(function() {
     var userClick = $(this).attr('id');
     var gemCoords = userClick.split('-');
@@ -304,12 +353,9 @@ $(document).ready(function() {
     } else {
       coordArray.push(xCoord,yCoord);
       if (newBoard.isValid(coordArray)) {
-        // debugger;
         newBoard.swapGems(coordArray);
-        drawBoard(newBoard);
-        setTimeout(function(){
-          newBoard.checkBoard();
-        }, 800 );
+        drawClear(newBoard);
+        newBoard.checkBoard();
       } else {
         //nothing
       }
