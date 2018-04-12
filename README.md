@@ -20,8 +20,8 @@ A clone of Bejeweled, the popular game.
 
 ## Setup/Installation Requirements
 
-* To view project code, _clone repository from_
-* To view project, _open in web browser_
+* To view project code, _clone repository from_ https://github.com/william-chu/Bedazzzled/
+* To view project, _open in web browser_ https://william-chu.github.io/Bedazzzled/
 
 ## Known Bugs
 
